@@ -362,33 +362,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         bg = '#050816';
         surface = '#090F26';
         card = '#121B3A';
-        accent = '#00F5FF';
         bubbleRecv = 'rgba(18, 27, 58, 0.7)';
-        bubbleSent = 'linear-gradient(135deg, #00F5FF, #005FDF)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #005FDF)`;
         break;
       case 'royal-purple':
         bg = '#100720';
         surface = '#180B30';
         card = '#26124C';
-        accent = '#8B5CF6';
         bubbleRecv = 'rgba(38, 18, 76, 0.7)';
-        bubbleSent = 'linear-gradient(135deg, #8B5CF6, #6366F1)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #6366F1)`;
         break;
       case 'emerald-dark':
         bg = '#021E0F';
         surface = '#042F18';
         card = '#084C27';
-        accent = '#10B981';
         bubbleRecv = 'rgba(8, 76, 39, 0.7)';
-        bubbleSent = 'linear-gradient(135deg, #10B981, #059669)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #059669)`;
         break;
       case 'crimson-elite':
         bg = '#140505';
         surface = '#220808';
         card = '#3F1212';
-        accent = '#EF4444';
         bubbleRecv = 'rgba(63, 18, 18, 0.7)';
-        bubbleSent = 'linear-gradient(135deg, #EF4444, #B91C1C)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #B91C1C)`;
         break;
       case 'light-professional':
         bg = '#F8FAFC';
@@ -396,9 +392,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         card = '#F1F5F9';
         text = '#0F172A';
         muted = '#64748B';
-        accent = '#4F46E5';
         bubbleRecv = '#E2E8F0';
-        bubbleSent = 'linear-gradient(135deg, #4F46E5, #6366F1)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #6366F1)`;
         break;
     }
 
@@ -606,24 +601,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   <label className="block text-xxs font-bold uppercase tracking-wider text-muted-text">Interface Themes</label>
                   <div className="grid grid-cols-3 gap-2.5">
                     {[
-                      { id: 'midnight', name: 'Midnight', bg: 'bg-[#0F172A]', accent: 'bg-[#6366F1]' },
-                      { id: 'cyber-neon', name: 'Cyber Neon', bg: 'bg-[#050816]', accent: 'bg-[#00F5FF]' },
-                      { id: 'royal-purple', name: 'Royal Purple', bg: 'bg-[#140A2E]', accent: 'bg-[#8B5CF6]' },
-                      { id: 'emerald-dark', name: 'Emerald Dark', bg: 'bg-[#052E16]', accent: 'bg-[#10B981]' },
-                      { id: 'crimson-elite', name: 'Crimson Elite', bg: 'bg-[#1F0A0A]', accent: 'bg-[#EF4444]' },
-                      { id: 'light-professional', name: 'Light Professional', bg: 'bg-white border border-white/10', accent: 'bg-[#4F46E5]' }
+                      { id: 'midnight', name: 'Midnight', bg: 'bg-[#0F172A]', accent: 'bg-[#6366F1]', defAccent: '#6366F1' },
+                      { id: 'cyber-neon', name: 'Cyber Neon', bg: 'bg-[#050816]', accent: 'bg-[#00F5FF]', defAccent: '#00F5FF' },
+                      { id: 'royal-purple', name: 'Royal Purple', bg: 'bg-[#140A2E]', accent: 'bg-[#8B5CF6]', defAccent: '#8B5CF6' },
+                      { id: 'emerald-dark', name: 'Emerald Dark', bg: 'bg-[#052E16]', accent: 'bg-[#10B981]', defAccent: '#10B981' },
+                      { id: 'crimson-elite', name: 'Crimson Elite', bg: 'bg-[#1F0A0A]', accent: 'bg-[#EF4444]', defAccent: '#EF4444' },
+                      { id: 'light-professional', name: 'Light Professional', bg: 'bg-white border border-white/10', accent: 'bg-[#4F46E5]', defAccent: '#4F46E5' }
                     ].map((thm) => (
                       <button
                         key={thm.id}
-                        onClick={() => setTheme(thm.id as any)}
+                        onClick={() => {
+                          setTheme(thm.id as any);
+                          setAccentColor(thm.defAccent);
+                        }}
                         className={`flex flex-col p-2.5 rounded-xl text-left border relative transition-all ${
                           theme === thm.id ? 'border-indigo-500 bg-white/[0.03]' : 'border-white/5 hover:border-white/10'
                         }`}
                       >
-                        <span className="text-xxs font-bold text-white mb-1.5">{thm.name}</span>
+                        <span className="text-xxs font-bold text-text-primary mb-1.5">{thm.name}</span>
                         <div className="flex gap-1">
-                          <span className={`w-4 h-4 rounded-full ${thm.bg}`} />
-                          <span className={`w-4 h-4 rounded-full ${thm.accent}`} />
+                           <span className={`w-4 h-4 rounded-full ${thm.bg}`} />
+                           <span className={`w-4 h-4 rounded-full ${thm.accent}`} />
                         </div>
                         {theme === thm.id && <Check size={12} className="absolute right-2.5 bottom-2.5 text-indigo-400" />}
                       </button>

@@ -142,33 +142,29 @@ const App: React.FC = () => {
         bg = '#050816';
         surface = '#090F26';
         card = '#121B3A';
-        accent = '#00F5FF';
         bubbleRecv = 'rgba(18, 27, 58, 0.7)';
-        bubbleSent = 'linear-gradient(135deg, #00F5FF, #005FDF)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #005FDF)`;
         break;
       case 'royal-purple':
         bg = '#100720';
         surface = '#180B30';
         card = '#26124C';
-        accent = '#8B5CF6';
         bubbleRecv = 'rgba(38, 18, 76, 0.7)';
-        bubbleSent = 'linear-gradient(135deg, #8B5CF6, #6366F1)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #6366F1)`;
         break;
       case 'emerald-dark':
         bg = '#021E0F';
         surface = '#042F18';
         card = '#084C27';
-        accent = '#10B981';
         bubbleRecv = 'rgba(8, 76, 39, 0.7)';
-        bubbleSent = 'linear-gradient(135deg, #10B981, #059669)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #059669)`;
         break;
       case 'crimson-elite':
         bg = '#140505';
         surface = '#220808';
         card = '#3F1212';
-        accent = '#EF4444';
         bubbleRecv = 'rgba(63, 18, 18, 0.7)';
-        bubbleSent = 'linear-gradient(135deg, #EF4444, #B91C1C)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #B91C1C)`;
         break;
       case 'light-professional':
         bg = '#F8FAFC';
@@ -176,9 +172,8 @@ const App: React.FC = () => {
         card = '#F1F5F9';
         text = '#0F172A';
         muted = '#64748B';
-        accent = '#4F46E5';
         bubbleRecv = '#E2E8F0';
-        bubbleSent = 'linear-gradient(135deg, #4F46E5, #6366F1)';
+        bubbleSent = `linear-gradient(135deg, ${accent}, #6366F1)`;
         break;
     }
 
