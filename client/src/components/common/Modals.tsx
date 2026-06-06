@@ -247,12 +247,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setStatusText(user.statusText || '');
       setPresence(user.status);
 
-      setTheme(user.theme);
-      setFontFamily(user.fontFamily);
-      setFontSizeUI(user.fontSizeUI);
-      setFontSizeChat(user.fontSizeChat);
-      setLineHeight(user.lineHeight);
-      setAccentColor(user.accentColor);
+      setTheme(user.theme || 'midnight');
+      setFontFamily(user.fontFamily || 'Inter');
+      setFontSizeUI(user.fontSizeUI || 14);
+      setFontSizeChat(user.fontSizeChat || 14);
+      setLineHeight(user.lineHeight || 1.5);
+      setAccentColor(user.accentColor || '#6366F1');
       
       // Fetch login sessions on security tab
       if (activeSubTab === 'security') {
@@ -314,7 +314,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       alert('Failed to save profile: ' + err);
     }
   };
-
   // Instantly apply theme variables to CSS on changes
   useEffect(() => {
     if (!isOpen || activeSubTab !== 'appearance') return;
@@ -324,15 +323,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const applyThemeVariablesLocal = (prefs: any) => {
     const root = document.documentElement;
 
+    const theme = prefs.theme || 'midnight';
+    const fontFamily = prefs.fontFamily || 'Inter';
+    const fontSizeUI = prefs.fontSizeUI || 14;
+    const fontSizeChat = prefs.fontSizeChat || 14;
+    const lineHeight = prefs.lineHeight || 1.5;
+    const accentColor = prefs.accentColor || '#6366F1';
+
     // Font Family
-    root.style.setProperty('--font-sans', `${prefs.fontFamily}, sans-serif`);
+    root.style.setProperty('--font-sans', `${fontFamily}, sans-serif`);
 
     // Font Sizes
-    root.style.setProperty('--ui-font-size', `${prefs.fontSizeUI}px`);
-    root.style.setProperty('--chat-font-size', `${prefs.fontSizeChat}px`);
+    root.style.setProperty('--ui-font-size', `${fontSizeUI}px`);
+    root.style.setProperty('--chat-font-size', `${fontSizeChat}px`);
     
     // Line Heights
-    root.style.setProperty('--chat-line-height', `${prefs.lineHeight}`);
+    root.style.setProperty('--chat-line-height', `${lineHeight}`);
 
     // Colors mapping
     let bg = '#0F172A';
@@ -340,11 +346,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     let card = '#1E293B';
     let text = '#FFFFFF';
     let muted = '#94A3B8';
-    let accent = prefs.accentColor;
+    let accent = accentColor;
     let bubbleRecv = 'rgba(30, 41, 59, 0.65)';
-    let bubbleSent = `linear-gradient(135deg, ${prefs.accentColor}, #7C3AED)`;
+    let bubbleSent = `linear-gradient(135deg, ${accentColor}, #7C3AED)`;
 
-    switch (prefs.theme) {
+    switch (theme) {
       case 'cyber-neon':
         bg = '#050816';
         surface = '#090F26';
