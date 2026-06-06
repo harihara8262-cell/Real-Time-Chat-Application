@@ -189,7 +189,7 @@ export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-110 text-white font-semibold rounded-xl text-xs transition-all shadow-md shadow-indigo-500/15"
+                className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-110 text-pure-white font-semibold rounded-xl text-xs transition-all shadow-md shadow-indigo-500/15"
               >
                 Create Group Channel
               </button>
@@ -592,7 +592,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   </select>
                 </div>
 
-                <button type="submit" className="w-full py-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl text-xs font-semibold text-white shadow-md shadow-indigo-500/15">
+                <button type="submit" className="w-full py-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl text-xs font-semibold text-pure-white shadow-md shadow-indigo-500/15">
                   Save Settings
                 </button>
               </form>
@@ -710,7 +710,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                 <button
                   onClick={handleSaveAppearance}
-                  className="w-full py-2.5 bg-indigo-500 hover:bg-indigo-600 rounded-xl text-xs font-semibold text-white shadow-md shadow-indigo-500/15"
+                  className="w-full py-2.5 bg-indigo-500 hover:bg-indigo-600 rounded-xl text-xs font-semibold text-pure-white shadow-md shadow-indigo-500/15"
                 >
                   Save Appearance Preferences
                 </button>
@@ -782,7 +782,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </div>
                   )}
 
-                  <button type="submit" className="w-full py-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl text-xs font-semibold text-white shadow-md shadow-indigo-500/15">
+                  <button type="submit" className="w-full py-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl text-xs font-semibold text-pure-white shadow-md shadow-indigo-500/15">
                     Save New Password
                   </button>
                 </form>

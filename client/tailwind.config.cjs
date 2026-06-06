@@ -18,6 +18,8 @@ module.exports = {
         'success-color': '#10B981',
         'warning-color': '#F59E0B',
         'danger-color': '#EF4444',
+        'white': ({ opacityValue }) => opacityValue ? `rgba(var(--text-primary-rgb), ${opacityValue})` : `rgb(var(--text-primary-rgb))`,
+        'pure-white': '#FFFFFF',
         'indigo': {
           50: ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgba(var(--accent-indigo-rgb), 0.05)`,
           100: ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgba(var(--accent-indigo-rgb), 0.1)`,

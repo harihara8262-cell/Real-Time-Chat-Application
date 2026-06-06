@@ -309,7 +309,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex items-center justify-center py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-110 active:scale-[0.98] transition-all font-semibold shadow-lg shadow-indigo-500/25 text-white text-xs"
+          className="w-full flex items-center justify-center py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-110 active:scale-[0.98] transition-all font-semibold shadow-lg shadow-indigo-500/25 text-pure-white text-xs"
         >
           {isLoading ? <Loader2 className="animate-spin mr-2" size={16} /> : null}
           Register Profile

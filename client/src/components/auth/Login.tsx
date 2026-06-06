@@ -173,7 +173,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
         <button
           type="submit"
           disabled={isLoading || lockTimeLeft > 0}
-          className="w-full flex items-center justify-center py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 active:scale-[0.98] transition-all font-semibold shadow-lg shadow-indigo-500/25 text-white text-sm cursor-pointer"
+          className="w-full flex items-center justify-center py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 active:scale-[0.98] transition-all font-semibold shadow-lg shadow-indigo-500/25 text-pure-white text-sm cursor-pointer"
         >
           {isLoading ? <Loader2 className="animate-spin mr-2" size={18} /> : null}
           {lockTimeLeft > 0 ? 'Account Locked' : 'Sign In'}

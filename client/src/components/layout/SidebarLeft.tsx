@@ -46,7 +46,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
 
         {/* Home Chat Selector */}
         <button
-          className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+          className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-pure-white flex items-center justify-center transition-all cursor-pointer"
           title="Direct Messages & Group Chats"
         >
           <MessageSquare size={20} />
@@ -55,7 +55,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
         {/* Explore Selector */}
         <button
           onClick={onOpenCreateChannel}
-          className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-indigo-500 hover:text-white text-muted-text flex items-center justify-center transition-all cursor-pointer"
+          className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-indigo-500 hover:text-pure-white text-muted-text flex items-center justify-center transition-all cursor-pointer"
           title="Create New Channels"
         >
           <Compass size={20} />

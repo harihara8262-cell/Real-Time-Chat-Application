@@ -196,7 +196,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onUploadFile }) => {
         <button
           type="submit"
           disabled={isSending || (!text.trim() && !selectedFile)}
-          className="p-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 rounded-xl text-white transition-all shrink-0 flex items-center justify-center shadow-md shadow-indigo-500/15"
+          className="p-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-110 disabled:opacity-50 disabled:hover:brightness-100 rounded-xl text-pure-white transition-all shrink-0 flex items-center justify-center shadow-md shadow-indigo-500/15"
           title="Send message"
         >
           <Send size={16} />
