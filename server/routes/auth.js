@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const Channel = require('../models/Channel');
 const auth = require('../middleware/auth');
 const config = require('../config');
 
@@ -72,6 +73,26 @@ router.post('/register', async (req, res) => {
 
     // Save
     await newUser.save();
+
+    // Automatically link new registrant to Aether AI bot DM channel
+    try {
+      const botUser = await User.findOne({ username: 'aetherai' });
+      if (botUser) {
+        const aiChannel = new Channel({
+          name: '',
+          type: 'private',
+          creator: botUser._id,
+          members: [
+            { user: newUser._id, role: 'owner' },
+            { user: botUser._id, role: 'member' }
+          ],
+          isDirectMessage: true
+        });
+        await aiChannel.save();
+      }
+    } catch (dmErr) {
+      console.error('Failed to create Aether AI DM during registration:', dmErr);
+    }
 
     const token = generateToken(newUser._id);
     
@@ -314,6 +335,35 @@ router.delete('/sessions/:sessionId', auth, async (req, res) => {
   } catch (err) {
     console.error('Delete session error:', err);
     return res.status(500).json({ error: 'Server error invalidating session.' });
+  }
+});
+
+// Search Users Directory
+router.get('/users', auth, async (req, res) => {
+  try {
+    const query = req.query.q || '';
+    const userId = req.user._id;
+
+    // Search by username or displayName containing query, excluding current user
+    const searchFilter = {
+      _id: { $ne: userId }
+    };
+
+    if (query) {
+      searchFilter.$or = [
+        { username: { $regex: query, $options: 'i' } },
+        { displayName: { $regex: query, $options: 'i' } }
+      ];
+    }
+
+    const users = await User.find(searchFilter)
+      .select('username displayName avatarUrl status statusText')
+      .limit(20);
+
+    return res.json(users);
+  } catch (err) {
+    console.error('Search users error:', err);
+    return res.status(500).json({ error: 'Server error searching users.' });
   }
 });
 

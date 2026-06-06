@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { Settings, LogOut, MessageSquare, Compass } from 'lucide-react';
+import { useChatStore } from '../../stores/useChatStore';
+import { Settings, LogOut, MessageSquare, Compass, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface SidebarLeftProps {
@@ -8,11 +9,80 @@ interface SidebarLeftProps {
   onOpenCreateChannel: () => void;
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export const SidebarLeft: React.FC<SidebarLeftProps> = ({
   onOpenSettings,
   onOpenCreateChannel
 }) => {
   const { user, logout } = useAuthStore();
+  const { channels, setActiveChannelId, fetchChannels } = useChatStore();
+
+  const handleOpenAIChat = async () => {
+    // 1. Search locally
+    let aiChannel = channels.find(c => 
+      c.isDirectMessage && 
+      c.members.some(m => m.user && typeof m.user === 'object' && m.user.username === 'aetherai')
+    );
+
+    if (aiChannel) {
+      setActiveChannelId(aiChannel._id);
+      return;
+    }
+
+    console.log('Aether AI DM channel not found locally, refreshing channels list...');
+    
+    // 2. Fetch channels list from server
+    await fetchChannels();
+
+    // 3. Search updated list
+    const updatedChannels = useChatStore.getState().channels;
+    aiChannel = updatedChannels.find(c => 
+      c.isDirectMessage && 
+      c.members.some(m => m.user && typeof m.user === 'object' && m.user.username === 'aetherai')
+    );
+
+    if (aiChannel) {
+      setActiveChannelId(aiChannel._id);
+      return;
+    }
+
+    // 4. Create on-the-fly fallback
+    console.log('DM still not found. Fetching Aether AI user details to initialize DM...');
+    try {
+      const token = useAuthStore.getState().token;
+      const res = await fetch(`${API_URL}/api/auth/users?q=aetherai`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const users = await res.json();
+      const botUser = users.find((u: any) => u.username === 'aetherai');
+      
+      if (botUser) {
+        const createRes = await fetch(`${API_URL}/api/channels`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            isDirectMessage: true,
+            invitedUsers: [botUser._id]
+          })
+        });
+        const newDM = await createRes.json();
+        if (createRes.ok) {
+          useChatStore.getState().addChannel(newDM);
+          setActiveChannelId(newDM._id);
+        } else {
+          console.error('Failed to create Aether AI DM channel:', newDM.error);
+        }
+      } else {
+        console.warn('Aether AI bot user not found in search directory.');
+      }
+    } catch (err) {
+      console.error('Error auto-creating Aether AI DM channel:', err);
+    }
+  };
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to sign out?')) {
@@ -60,6 +130,17 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
         >
           <Compass size={20} />
         </button>
+
+        {/* Aether AI Sparkles Orb */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleOpenAIChat}
+          className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500/20 via-teal-500/20 to-indigo-500/20 hover:from-cyan-500 hover:via-teal-500 hover:to-indigo-500 text-cyan-400 hover:text-white flex items-center justify-center transition-all cursor-pointer border border-cyan-500/20 hover:border-transparent shadow-[0_0_10px_rgba(6,182,212,0.15)] hover:shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+          title="Chat with Aether AI"
+        >
+          <Sparkles size={20} className="animate-pulse" />
+        </motion.button>
       </div>
 
       {/* Bottom Section */}

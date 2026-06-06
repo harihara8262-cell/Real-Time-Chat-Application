@@ -18,6 +18,10 @@ export const initSocket = (token: string) => {
 
   socket.on('connect', () => {
     console.log('Socket.IO connected. ID:', socket?.id);
+    const activeChannelId = useChatStore.getState().activeChannelId;
+    if (activeChannelId && socket) {
+      socket.emit('join_channel', { channelId: activeChannelId });
+    }
   });
 
   // Listen for presence updates

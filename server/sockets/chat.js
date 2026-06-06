@@ -3,6 +3,7 @@ const config = require('../config');
 const User = require('../models/User');
 const Channel = require('../models/Channel');
 const Message = require('../models/Message');
+const aiService = require('../services/ai');
 
 // Store mappings of active users -> socket IDs (to check multi-tab online presence)
 const activeUsers = new Map(); // userId -> Set of socketIds
@@ -136,6 +137,88 @@ module.exports = (io) => {
               }
             }
           });
+        }
+
+        // --- AETHER AI CHATBOT HANDLER ---
+        if (channel.isDirectMessage) {
+          try {
+            const botUser = await User.findOne({ username: 'aetherai' });
+            if (botUser && channel.members.some(m => m.user.toString() === botUser._id.toString())) {
+              // Trigger typing indicator immediately
+              io.to(channelId).emit('typing_update', {
+                channelId,
+                userId: botUser._id.toString(),
+                displayName: botUser.displayName,
+                isTyping: true
+              });
+
+              // Fetch history context (excluding the current user message)
+              const history = await Message.find({ channel: channelId, _id: { $ne: newMessage._id } })
+                .sort({ createdAt: -1 })
+                .limit(10)
+                .populate('sender', 'username');
+              history.reverse();
+
+              // Run response generation asynchronously so socket doesn't block
+              (async () => {
+                try {
+                  const startTime = Date.now();
+                  let botResponse;
+                  try {
+                    botResponse = await aiService.generateAIResponse(content, history);
+                  } catch (aiErr) {
+                    console.error('AI Generation error:', aiErr);
+                    botResponse = "I'm sorry, I'm having trouble processing that right now. Please try again in a bit!";
+                  }
+
+                  const duration = Date.now() - startTime;
+                  const minDelay = 1500;
+                  if (duration < minDelay) {
+                    await new Promise(resolve => setTimeout(resolve, minDelay - duration));
+                  }
+
+                  const aiMessage = new Message({
+                    channel: channelId,
+                    sender: botUser._id,
+                    content: botResponse,
+                    attachment: null,
+                    replyTo: newMessage._id
+                  });
+                  await aiMessage.save();
+
+                  const populatedAiMessage = await Message.findById(aiMessage._id)
+                    .populate('sender', 'username displayName avatarUrl status')
+                    .populate('replyTo')
+                    .populate({
+                      path: 'replyTo',
+                      populate: { path: 'sender', select: 'username displayName' }
+                    });
+
+                  // Turn off typing indicator
+                  io.to(channelId).emit('typing_update', {
+                    channelId,
+                    userId: botUser._id.toString(),
+                    displayName: botUser.displayName,
+                    isTyping: false
+                  });
+
+                  // Broadcast message
+                  io.to(channelId).emit('message_recv', populatedAiMessage);
+                } catch (innerErr) {
+                  console.error('Asynchronous AI response execution error:', innerErr);
+                  // Ensure typing indicator turns off even on failure
+                  io.to(channelId).emit('typing_update', {
+                    channelId,
+                    userId: botUser._id.toString(),
+                    displayName: botUser.displayName,
+                    isTyping: false
+                  });
+                }
+              })();
+            }
+          } catch (botErr) {
+            console.error('Error initiating AI response:', botErr);
+          }
         }
       } catch (err) {
         console.error('Socket message_send error:', err);

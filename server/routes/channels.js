@@ -1,6 +1,7 @@
 const express = require('express');
 const Channel = require('../models/Channel');
 const Message = require('../models/Message');
+const User = require('../models/User');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -9,6 +10,32 @@ const router = express.Router();
 router.get('/', auth, async (req, res) => {
   try {
     const userId = req.user._id;
+
+    // Ensure DM channel with Aether AI exists
+    try {
+      const botUser = await User.findOne({ username: 'aetherai' });
+      if (botUser && userId.toString() !== botUser._id.toString()) {
+        const existingDM = await Channel.findOne({
+          isDirectMessage: true,
+          'members.user': { $all: [userId, botUser._id] }
+        });
+        if (!existingDM) {
+          const aiChannel = new Channel({
+            name: '',
+            type: 'private',
+            creator: botUser._id,
+            members: [
+              { user: userId, role: 'owner' },
+              { user: botUser._id, role: 'member' }
+            ],
+            isDirectMessage: true
+          });
+          await aiChannel.save();
+        }
+      }
+    } catch (dmErr) {
+      console.error('Failed to auto-create Aether AI DM on fetch channels:', dmErr);
+    }
 
     // Retrieve channels:
     // - Type is 'public' OR

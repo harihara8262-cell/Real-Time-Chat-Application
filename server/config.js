@@ -32,5 +32,8 @@ module.exports = {
   },
 
   // Frontend link (for CORS socket checks)
-  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000'
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
+
+  // Gemini API Key
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || null
 };

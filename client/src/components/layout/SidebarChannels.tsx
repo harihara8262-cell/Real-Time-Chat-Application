@@ -47,7 +47,8 @@ export const SidebarChannels: React.FC<SidebarChannelsProps> = ({
     return otherMember?.user || null;
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string, isAI: boolean = false) => {
+    if (isAI) return 'bg-cyan-400 shadow-[0_0_8px_#22D3EE] animate-pulse';
     switch (status) {
       case 'online': return 'bg-success-color';
       case 'idle': return 'bg-warning-color';
@@ -166,9 +167,14 @@ export const SidebarChannels: React.FC<SidebarChannelsProps> = ({
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="relative w-5 h-5 rounded-md overflow-hidden bg-dark-bg shrink-0">
                         <img src={otherUser.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                        <span className={`absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full border border-dark-surface ${getStatusColor(otherUser.status)}`} />
+                        <span className={`absolute bottom-0 right-0 w-1.5 h-1.5 rounded-full border border-dark-surface ${getStatusColor(otherUser.status, otherUser.username === 'aetherai')}`} />
                       </div>
                       <span className="truncate">{otherUser.displayName}</span>
+                      {otherUser.username === 'aetherai' && (
+                        <span className="bg-gradient-to-r from-cyan-500 to-indigo-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider shadow-[0_0_8px_rgba(6,182,212,0.4)] shrink-0">
+                          AI
+                        </span>
+                      )}
                     </div>
                     {unread > 0 && (
                       <span className="bg-success-color text-dark-bg text-xxs font-black px-1.5 py-0.5 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)] shrink-0">

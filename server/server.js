@@ -11,6 +11,7 @@ const channelRoutes = require('./routes/channels');
 const uploadRoutes = require('./routes/upload');
 const socketHandler = require('./sockets/chat');
 const Channel = require('./models/Channel');
+const User = require('./models/User');
 
 // Initialize Express
 const app = express();
@@ -37,6 +38,22 @@ app.use('/api/upload', uploadRoutes);
 mongoose.connect(config.MONGO_URI)
   .then(async () => {
     console.log('MongoDB Connected Successfully.');
+
+    // Seed Aether AI bot user
+    const botUser = await User.findOne({ username: 'aetherai' });
+    if (!botUser) {
+      const aetherai = new User({
+        username: 'aetherai',
+        email: 'aetherai@system.com',
+        passwordHash: 'seeded_bot_no_login_possible_hash_123',
+        displayName: 'Aether AI',
+        avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=aetherai',
+        status: 'online',
+        statusText: 'AI Assistant online and ready!'
+      });
+      await aetherai.save();
+      console.log('Seeded Aether AI bot user.');
+    }
 
     // Seed default public channels if database is blank
     const defaultChannel = await Channel.findOne({ name: 'general', type: 'public' });

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from './stores/useAuthStore';
 import { useChatStore } from './stores/useChatStore';
-import { initSocket, disconnectSocket } from './socket';
+import { initSocket, disconnectSocket, socket } from './socket';
 import { Login } from './components/auth/Login';
 import { Register } from './components/auth/Register';
 import { SidebarLeft } from './components/layout/SidebarLeft';
@@ -62,6 +62,11 @@ const App: React.FC = () => {
       fetchMessages(activeChannelId);
       clearUnread(activeChannelId);
       setIsPinsOnly(false);
+      
+      // Join WebSocket channel room
+      if (socket) {
+        socket.emit('join_channel', { channelId: activeChannelId });
+      }
     }
   }, [activeChannelId]);
 
