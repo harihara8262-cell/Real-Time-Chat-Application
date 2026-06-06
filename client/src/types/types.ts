@@ -1,3 +1,10 @@
+export interface Session {
+  _id: string;
+  userAgent: string;
+  ipAddress: string;
+  lastActive: string;
+}
+
 export interface User {
   _id: string;
   username: string;
@@ -8,6 +15,17 @@ export interface User {
   statusText?: string;
   lastSeen?: string;
   createdAt: string;
+
+  // --- UI PREFERENCES ---
+  theme: 'midnight' | 'cyber-neon' | 'royal-purple' | 'emerald-dark' | 'crimson-elite' | 'light-professional';
+  fontFamily: string;
+  fontSizeUI: number;
+  fontSizeChat: number;
+  lineHeight: number;
+  accentColor: string;
+
+  // --- ACTIVE SESSIONS ---
+  sessions?: Session[];
 }
 
 export interface Member {
@@ -36,7 +54,7 @@ export interface Attachment {
 
 export interface Reaction {
   emoji: string;
-  users: string[]; // array of user IDs
+  users: string[];
 }
 
 export interface Message {

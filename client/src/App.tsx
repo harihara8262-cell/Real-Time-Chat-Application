@@ -11,13 +11,13 @@ import { ChatFeed } from './components/layout/ChatFeed';
 import { ChatInput } from './components/layout/ChatInput';
 import { SidebarRight } from './components/layout/SidebarRight';
 import { CreateRoomModal, SettingsModal } from './components/common/Modals';
-import { MessageSquare, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const App: React.FC = () => {
-  const { token, isAuthenticated, isLoading, checkSession } = useAuthStore();
+  const { token, isAuthenticated, isLoading, user, checkSession, logout } = useAuthStore();
   const {
     activeChannelId,
     setActiveChannelId,
@@ -64,6 +64,135 @@ const App: React.FC = () => {
       setIsPinsOnly(false);
     }
   }, [activeChannelId]);
+
+  // DYNAMIC THEME INJECTOR
+  useEffect(() => {
+    if (user) {
+      applyThemeVariables(user);
+    }
+  }, [user]);
+
+  // AUTO LOGOUT TIMER (15 minutes inactivity)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    let timeoutId: NodeJS.Timeout;
+    const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 mins
+
+    const logoutUser = () => {
+      logout();
+      alert('You have been signed out due to inactivity.');
+    };
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(logoutUser, INACTIVITY_LIMIT);
+    };
+
+    // Listen for interactions
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('click', resetTimer);
+    window.addEventListener('scroll', resetTimer);
+
+    // Initial trigger
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('click', resetTimer);
+      window.removeEventListener('scroll', resetTimer);
+    };
+  }, [isAuthenticated]);
+
+  const applyThemeVariables = (prefs: any) => {
+    const root = document.documentElement;
+
+    // Font Family
+    root.style.setProperty('--font-sans', `${prefs.fontFamily}, sans-serif`);
+
+    // Font Sizes
+    root.style.setProperty('--ui-font-size', `${prefs.fontSizeUI}px`);
+    root.style.setProperty('--chat-font-size', `${prefs.fontSizeChat}px`);
+    
+    // Line Heights
+    root.style.setProperty('--chat-line-height', `${prefs.lineHeight}`);
+
+    // Colors mapping
+    let bg = '#0F172A';
+    let surface = '#111827';
+    let card = '#1E293B';
+    let text = '#FFFFFF';
+    let muted = '#94A3B8';
+    let accent = prefs.accentColor;
+    let bubbleRecv = 'rgba(30, 41, 59, 0.65)';
+    let bubbleSent = `linear-gradient(135deg, ${prefs.accentColor}, #7C3AED)`;
+
+    switch (prefs.theme) {
+      case 'cyber-neon':
+        bg = '#050816';
+        surface = '#090F26';
+        card = '#121B3A';
+        accent = '#00F5FF';
+        bubbleRecv = 'rgba(18, 27, 58, 0.7)';
+        bubbleSent = 'linear-gradient(135deg, #00F5FF, #005FDF)';
+        break;
+      case 'royal-purple':
+        bg = '#100720';
+        surface = '#180B30';
+        card = '#26124C';
+        accent = '#8B5CF6';
+        bubbleRecv = 'rgba(38, 18, 76, 0.7)';
+        bubbleSent = 'linear-gradient(135deg, #8B5CF6, #6366F1)';
+        break;
+      case 'emerald-dark':
+        bg = '#021E0F';
+        surface = '#042F18';
+        card = '#084C27';
+        accent = '#10B981';
+        bubbleRecv = 'rgba(8, 76, 39, 0.7)';
+        bubbleSent = 'linear-gradient(135deg, #10B981, #059669)';
+        break;
+      case 'crimson-elite':
+        bg = '#140505';
+        surface = '#220808';
+        card = '#3F1212';
+        accent = '#EF4444';
+        bubbleRecv = 'rgba(63, 18, 18, 0.7)';
+        bubbleSent = 'linear-gradient(135deg, #EF4444, #B91C1C)';
+        break;
+      case 'light-professional':
+        bg = '#F8FAFC';
+        surface = '#FFFFFF';
+        card = '#F1F5F9';
+        text = '#0F172A';
+        muted = '#64748B';
+        accent = '#4F46E5';
+        bubbleRecv = '#E2E8F0';
+        bubbleSent = 'linear-gradient(135deg, #4F46E5, #6366F1)';
+        break;
+    }
+
+    root.style.setProperty('--bg-primary', bg);
+    root.style.setProperty('--bg-secondary', `rgba(${hexToRgb(surface)}, 0.7)`);
+    root.style.setProperty('--bg-surface', `rgba(${hexToRgb(card)}, 0.5)`);
+    root.style.setProperty('--text-primary', text);
+    root.style.setProperty('--text-secondary', muted);
+    root.style.setProperty('--accent-indigo', accent);
+    root.style.setProperty('--bubble-received', bubbleRecv);
+    root.style.setProperty('--bubble-sent', bubbleSent);
+  };
+
+  const hexToRgb = (hex: string) => {
+    let cleaned = hex.replace('#', '');
+    if (cleaned.length === 3) {
+      cleaned = cleaned.split('').map(c => c + c).join('');
+    }
+    const num = parseInt(cleaned, 16);
+    return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+  };
 
   // Upload handler REST call bridging Multer on backend
   const handleUploadFile = async (file: File) => {

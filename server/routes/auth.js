@@ -12,6 +12,16 @@ const generateToken = (userId) => {
   return jwt.sign({ userId }, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRES_IN });
 };
 
+// Password Complexity Checker
+const isStrongPassword = (password) => {
+  const minLength = password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasDigit = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  return minLength && hasUppercase && hasLowercase && hasDigit && hasSpecial;
+};
+
 // Register
 router.post('/register', async (req, res) => {
   try {
@@ -25,8 +35,10 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Passwords do not match.' });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({
+        error: 'Password does not meet complexity rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special symbol.'
+      });
     }
 
     const cleanUsername = username.trim().toLowerCase();
@@ -54,12 +66,24 @@ router.post('/register', async (req, res) => {
       email: cleanEmail,
       passwordHash,
       displayName: displayName ? displayName.trim() : username.trim(),
-      avatarUrl: avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanUsername)}`,
-      status: 'online' // start online upon successful signup
+      avatarUrl: avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanUsername)}`,
+      status: 'online'
     });
 
+    // Save
     await newUser.save();
+
     const token = generateToken(newUser._id);
+    
+    // Add current session details
+    newUser.sessions.push({
+      token: token,
+      userAgent: req.headers['user-agent'] || 'Unknown Device',
+      ipAddress: req.ip || '127.0.0.1',
+      lastActive: Date.now()
+    });
+    
+    await newUser.save();
 
     return res.status(201).json({
       token,
@@ -91,17 +115,78 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials.' });
     }
 
-    // Check Password match
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials.' });
+    // Check if account is locked
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      const remainingMs = user.lockUntil.getTime() - Date.now();
+      const remainingMin = Math.ceil(remainingMs / 60000);
+      return res.status(403).json({
+        error: `Account is temporarily locked due to multiple failed login attempts. Try again in ${remainingMin} minutes.`,
+        lockUntil: user.lockUntil
+      });
     }
 
-    // Set online status in database
+    // Check Password match
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    
+    if (!isMatch) {
+      // Increment failed attempts
+      user.failedLoginAttempts += 1;
+      
+      let responsePayload = { error: 'Invalid credentials.' };
+
+      if (user.failedLoginAttempts >= 8) {
+        // Account lock trigger
+        user.lockHistoryCount += 1;
+        
+        let lockDurationMs = 15 * 60 * 1000; // 1st lock: 15 mins
+        if (user.lockHistoryCount === 2) {
+          lockDurationMs = 30 * 60 * 1000; // 2nd lock: 30 mins
+        } else if (user.lockHistoryCount >= 3) {
+          lockDurationMs = 60 * 60 * 1000; // 3rd lock+: 1 hour
+        }
+
+        user.lockUntil = new Date(Date.now() + lockDurationMs);
+        user.failedLoginAttempts = 0; // reset attempts for next cycle
+        await user.save();
+
+        const durationMin = lockDurationMs / (60 * 1000);
+        return res.status(403).json({
+          error: `Too many failed attempts. Your account has been temporarily locked for ${durationMin} minutes.`,
+          lockUntil: user.lockUntil
+        });
+      } else if (user.failedLoginAttempts >= 5) {
+        // Warning trigger
+        await user.save();
+        responsePayload.warning = `Warning: ${8 - user.failedLoginAttempts} login attempts remaining before your account is locked.`;
+        return res.status(400).json(responsePayload);
+      }
+
+      await user.save();
+      return res.status(400).json(responsePayload);
+    }
+
+    // RESET SECURITY COUNTERS ON SUCCESSFUL LOGIN
+    user.failedLoginAttempts = 0;
+    user.lockUntil = null;
+    user.lockHistoryCount = 0;
     user.status = 'online';
-    await user.save();
 
     const token = generateToken(user._id);
+
+    // Save active session
+    user.sessions.push({
+      token: token,
+      userAgent: req.headers['user-agent'] || 'Unknown Device',
+      ipAddress: req.ip || '127.0.0.1',
+      lastActive: Date.now()
+    });
+
+    // Keep only last 10 sessions to prevent document bloat
+    if (user.sessions.length > 10) {
+      user.sessions.shift();
+    }
+
+    await user.save();
 
     return res.json({
       token,
@@ -115,57 +200,120 @@ router.post('/login', async (req, res) => {
 
 // Get Session User
 router.get('/me', auth, async (req, res) => {
-  return res.json(req.user);
+  // Update last active session timestamp
+  const token = req.headers.authorization.split(' ')[1];
+  const user = req.user;
+  
+  const currentSession = user.sessions.find(s => s.token === token);
+  if (currentSession) {
+    currentSession.lastActive = Date.now();
+    await user.save();
+  }
+
+  return res.json(user);
 });
 
-// Update Profile
+// Update Profile Preference settings
 router.put('/profile', auth, async (req, res) => {
   try {
-    const { displayName, avatarUrl, statusText } = req.body;
+    const {
+      displayName, avatarUrl, statusText,
+      theme, fontFamily, fontSizeUI, fontSizeChat, lineHeight, accentColor
+    } = req.body;
     const user = req.user;
 
-    if (displayName !== undefined) {
-      user.displayName = displayName.trim() || user.username;
-    }
-    if (avatarUrl !== undefined) {
-      user.avatarUrl = avatarUrl;
-    }
-    if (statusText !== undefined) {
-      user.statusText = statusText.trim();
-    }
+    // Standard profile updates
+    if (displayName !== undefined) user.displayName = displayName.trim() || user.username;
+    if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+    if (statusText !== undefined) user.statusText = statusText.trim();
+
+    // UI Customization Preference updates
+    if (theme !== undefined) user.theme = theme;
+    if (fontFamily !== undefined) user.fontFamily = fontFamily;
+    if (fontSizeUI !== undefined) user.fontSizeUI = Number(fontSizeUI);
+    if (fontSizeChat !== undefined) user.fontSizeChat = Number(fontSizeChat);
+    if (lineHeight !== undefined) user.lineHeight = Number(lineHeight);
+    if (accentColor !== undefined) user.accentColor = accentColor;
 
     await user.save();
     return res.json(user);
   } catch (err) {
     console.error('Profile update error:', err);
-    return res.status(500).json({ error: 'Server error updating profile.' });
+    return res.status(500).json({ error: 'Server error updating profile settings.' });
   }
 });
 
-// User Directory Directory Search
-router.get('/users', auth, async (req, res) => {
+// Change Password API
+router.post('/change-password', auth, async (req, res) => {
   try {
-    const { q } = req.query;
-    let query = { _id: { $ne: req.user._id } }; // Exclude self
+    const { currentPassword, newPassword } = req.body;
+    const user = req.user;
 
-    if (q) {
-      const regex = new RegExp(q, 'i');
-      query.$and = [
-        { _id: { $ne: req.user._id } },
-        {
-          $or: [
-            { username: regex },
-            { displayName: regex }
-          ]
-        }
-      ];
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Both current password and new password are required.' });
     }
 
-    const users = await User.find(query).limit(30);
-    return res.json(users);
+    // Verify current password match
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Incorrect current password.' });
+    }
+
+    // Verify complexity
+    if (!isStrongPassword(newPassword)) {
+      return res.status(400).json({
+        error: 'Password does not meet complexity rules: Minimum 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special symbol.'
+      });
+    }
+
+    // Hash & Save
+    const salt = await bcrypt.genSalt(10);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+
+    // Invalidate all other sessions (wipe other entries from array except the current active session)
+    const activeToken = req.headers.authorization.split(' ')[1];
+    user.sessions = user.sessions.filter(s => s.token === activeToken);
+
+    await user.save();
+
+    return res.json({ message: 'Password changed successfully. Other sessions logged out.' });
   } catch (err) {
-    console.error('Fetch users error:', err);
-    return res.status(500).json({ error: 'Server error retrieving users.' });
+    console.error('Password change error:', err);
+    return res.status(500).json({ error: 'Server error changing password.' });
+  }
+});
+
+// Fetch Active Sessions list
+router.get('/sessions', auth, async (req, res) => {
+  // Returns sessions list (without secure token details, handled by toJSON schema)
+  return res.json(req.user.sessions);
+});
+
+// Invalidate/Logout a specific Session
+router.delete('/sessions/:sessionId', auth, async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const user = req.user;
+
+    const sessionIndex = user.sessions.findIndex(s => s._id.toString() === sessionId);
+    if (sessionIndex === -1) {
+      return res.status(404).json({ error: 'Session not found.' });
+    }
+
+    // Check if user is deleting their current active session
+    const currentToken = req.headers.authorization.split(' ')[1];
+    const isCurrentSession = user.sessions[sessionIndex].token === currentToken;
+
+    user.sessions.splice(sessionIndex, 1);
+    await user.save();
+
+    return res.json({
+      message: 'Session revoked successfully.',
+      isCurrentSession // let frontend know if they need to force logout
+    });
+  } catch (err) {
+    console.error('Delete session error:', err);
+    return res.status(500).json({ error: 'Server error invalidating session.' });
   }
 });
 

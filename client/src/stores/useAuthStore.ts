@@ -11,6 +11,7 @@ interface AuthState {
   register: (payload: Record<string, string>) => Promise<void>;
   logout: () => void;
   updateProfile: (displayName: string, avatarUrl: string, statusText: string) => Promise<void>;
+  updatePreferences: (preferences: Record<string, any>) => Promise<void>;
   checkSession: () => Promise<void>;
   clearError: () => void;
 }
@@ -35,7 +36,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         body: JSON.stringify({ usernameOrEmail, password })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed.');
+      if (!res.ok) {
+        const err = new Error(data.error || 'Login failed.');
+        (err as any).lockUntil = data.lockUntil;
+        throw err;
+      }
       
       localStorage.setItem('aether_token', data.token);
       set({ token: data.token, user: data.user, isAuthenticated: true, isLoading: false });
@@ -85,6 +90,30 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Profile update failed.');
+
+      set({ user: data, isLoading: false });
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+      throw err;
+    }
+  },
+
+  updatePreferences: async (preferences) => {
+    const token = get().token;
+    if (!token) return;
+
+    set({ isLoading: true, error: null });
+    try {
+      const res = await fetch(`${API_URL}/api/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(preferences)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Preferences update failed.');
 
       set({ user: data, isLoading: false });
     } catch (err: any) {
