@@ -403,11 +403,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     }
 
     root.style.setProperty('--bg-primary', bg);
+    root.style.setProperty('--bg-primary-rgb', hexToRgb(bg));
     root.style.setProperty('--bg-secondary', `rgba(${hexToRgb(surface)}, 0.7)`);
+    root.style.setProperty('--bg-secondary-rgb', hexToRgb(surface));
     root.style.setProperty('--bg-surface', `rgba(${hexToRgb(card)}, 0.5)`);
+    root.style.setProperty('--bg-surface-rgb', hexToRgb(card));
     root.style.setProperty('--text-primary', text);
+    root.style.setProperty('--text-primary-rgb', hexToRgb(text));
     root.style.setProperty('--text-secondary', muted);
+    root.style.setProperty('--text-secondary-rgb', hexToRgb(muted));
     root.style.setProperty('--accent-indigo', accent);
+    root.style.setProperty('--accent-indigo-rgb', hexToRgb(accent));
     root.style.setProperty('--bubble-received', bubbleRecv);
     root.style.setProperty('--bubble-sent', bubbleSent);
   };

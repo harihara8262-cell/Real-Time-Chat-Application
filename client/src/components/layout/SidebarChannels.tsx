@@ -191,7 +191,7 @@ export const SidebarChannels: React.FC<SidebarChannelsProps> = ({
             <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-dark-surface ${getStatusColor(user?.status || 'offline')}`} />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-xs font-semibold truncate leading-tight text-white">{user?.displayName}</span>
+            <span className="text-xs font-semibold truncate leading-tight text-text-primary">{user?.displayName}</span>
             <span className="text-xxs text-muted-text truncate leading-tight">@{user?.username}</span>
           </div>
         </div>

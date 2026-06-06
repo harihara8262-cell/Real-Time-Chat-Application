@@ -8,15 +8,24 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'dark-bg': '#0F172A',
-        'dark-surface': '#111827',
-        'dark-card': '#1E293B',
-        'accent': '#6366F1',
-        'accent-hover': '#4F46E5',
-        'muted-text': '#94A3B8',
+        'dark-bg': ({ opacityValue }) => opacityValue ? `rgba(var(--bg-primary-rgb), ${opacityValue})` : `rgb(var(--bg-primary-rgb))`,
+        'dark-surface': ({ opacityValue }) => opacityValue ? `rgba(var(--bg-secondary-rgb), ${opacityValue})` : `rgba(var(--bg-secondary-rgb), 0.7)`,
+        'dark-card': ({ opacityValue }) => opacityValue ? `rgba(var(--bg-surface-rgb), ${opacityValue})` : `rgba(var(--bg-surface-rgb), 0.5)`,
+        'accent': ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgb(var(--accent-indigo-rgb))`,
+        'accent-hover': ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgb(var(--accent-indigo-rgb))`,
+        'muted-text': ({ opacityValue }) => opacityValue ? `rgba(var(--text-secondary-rgb), ${opacityValue})` : `rgb(var(--text-secondary-rgb))`,
+        'text-primary': 'var(--text-primary)',
         'success-color': '#10B981',
         'warning-color': '#F59E0B',
         'danger-color': '#EF4444',
+        'indigo': {
+          50: ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgba(var(--accent-indigo-rgb), 0.05)`,
+          100: ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgba(var(--accent-indigo-rgb), 0.1)`,
+          400: ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgba(var(--accent-indigo-rgb), 0.8)`,
+          500: ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgb(var(--accent-indigo-rgb))`,
+          600: ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgba(var(--accent-indigo-rgb), 0.9)`,
+          700: ({ opacityValue }) => opacityValue ? `rgba(var(--accent-indigo-rgb), ${opacityValue})` : `rgba(var(--accent-indigo-rgb), 0.8)`,
+        }
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

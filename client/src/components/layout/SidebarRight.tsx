@@ -94,7 +94,7 @@ export const SidebarRight: React.FC = () => {
                   <span className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-dark-surface ${getStatusColor(member.user.status)}`} />
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-semibold truncate text-white leading-tight">{member.user.displayName}</span>
+                  <span className="text-xs font-semibold truncate text-text-primary leading-tight">{member.user.displayName}</span>
                   {member.user.statusText && (
                     <span className="text-[10px] text-muted-text truncate italic leading-tight">"{member.user.statusText}"</span>
                   )}
@@ -129,7 +129,7 @@ export const SidebarRight: React.FC = () => {
                   className="flex items-center gap-2 p-2 bg-dark-bg/40 border border-white/5 rounded-xl hover:bg-white/[0.02] transition-colors text-xs"
                 >
                   <FileText size={16} className="text-indigo-400 shrink-0" />
-                  <span className="truncate flex-1 text-white font-medium" title={att.name}>{att.name}</span>
+                  <span className="truncate flex-1 text-text-primary font-medium" title={att.name}>{att.name}</span>
                 </a>
               );
             })}

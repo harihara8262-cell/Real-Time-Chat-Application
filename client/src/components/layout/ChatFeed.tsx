@@ -227,7 +227,7 @@ export const ChatFeed: React.FC<ChatFeedProps> = ({ searchFilter, isPinsOnly }) 
                               type="text"
                               value={editContent}
                               onChange={(e) => setEditContent(e.target.value)}
-                              className="w-full bg-dark-bg/80 border border-indigo-500 rounded-lg p-2 text-sm text-white outline-none focus:ring-1 focus:ring-indigo-500"
+                              className="w-full bg-dark-bg/80 border border-indigo-500 rounded-lg p-2 text-sm text-text-primary outline-none focus:ring-1 focus:ring-indigo-500"
                             />
                             <div className="flex gap-2 text-xxs mt-1 text-muted-text">
                               <span>Press Enter to save,</span>
@@ -235,7 +235,7 @@ export const ChatFeed: React.FC<ChatFeedProps> = ({ searchFilter, isPinsOnly }) 
                             </div>
                           </form>
                         ) : (
-                          <p className="text-sm font-normal leading-relaxed text-white/95 break-words">
+                          <p className="text-sm font-normal leading-relaxed text-text-primary/95 break-words">
                             {msg.content}
                             {msg.isEdited && <span className="text-xxs text-muted-text/50 ml-1.5">(edited)</span>}
                           </p>
@@ -256,7 +256,7 @@ export const ChatFeed: React.FC<ChatFeedProps> = ({ searchFilter, isPinsOnly }) 
                               <a href={msg.attachment.url} target="_blank" download={msg.attachment.name} className="flex items-center gap-3 p-3 bg-dark-surface/75 border border-white/5 rounded-xl hover:bg-white/[0.03] transition-all">
                                 <FileText className="text-indigo-400 shrink-0" size={24} />
                                 <div className="flex-1 min-w-0 flex flex-col">
-                                  <span className="text-xs font-semibold truncate text-white">{msg.attachment.name}</span>
+                                  <span className="text-xs font-semibold truncate text-text-primary">{msg.attachment.name}</span>
                                   <span className="text-[10px] text-muted-text">{formatBytes(msg.attachment.size)}</span>
                                 </div>
                                 <Download size={14} className="text-muted-text shrink-0" />
