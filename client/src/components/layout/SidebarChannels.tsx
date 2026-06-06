@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useChatStore } from '../../stores/useChatStore';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { Search, Plus, Hash, ChevronDown, ChevronRight, MessageSquare, Mic, MicOff, Volume2 } from 'lucide-react';
+import { Search, Plus, Hash, ChevronDown, ChevronRight, Mic, MicOff, Volume2 } from 'lucide-react';
 import { Channel } from '../../types/types';
 
 interface SidebarChannelsProps {

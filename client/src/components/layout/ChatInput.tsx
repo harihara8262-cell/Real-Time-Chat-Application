@@ -1,16 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useChatStore } from '../../stores/useChatStore';
-import { useAuthStore } from '../../stores/useAuthStore';
 import { socket } from '../../socket';
 import { Paperclip, Smile, Send, X, CornerDownRight, FileText } from 'lucide-react';
-import { API } from '../../stores/useAuthStore'; // Wait, let's fetch using standard header helpers or use API helpers
 
 interface ChatInputProps {
   onUploadFile: (file: File) => Promise<any>;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({ onUploadFile }) => {
-  const { token } = useAuthStore();
   const { activeChannelId, replyingToMessage, setReplyingToMessage, channels } = useChatStore();
   const [text, setText] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -19,7 +16,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onUploadFile }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isTyping, setIsTyping] = useState(false);
-  const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimerRef = useRef<any>(null);
 
   const currentChannel = channels.find(c => c._id === activeChannelId);
 

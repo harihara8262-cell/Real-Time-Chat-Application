@@ -76,7 +76,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: any;
     const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 mins
 
     const logoutUser = () => {

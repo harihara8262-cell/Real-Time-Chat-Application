@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useChatStore } from '../../stores/useChatStore';
-import { X, Search, Hash, Shield, Lock, Compass, Check, Settings, Sparkles, Sliders, Laptop, Trash2, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { X, Search, Hash, Lock, Check, Settings, Laptop, Trash2, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { socket } from '../../socket';
 import { Session } from '../../types/types';
 
@@ -211,6 +211,13 @@ interface SettingsModalProps {
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const { user, token, updateProfile, updatePreferences, logout } = useAuthStore();
   const [activeSubTab, setActiveSubTab] = useState<'profile' | 'appearance' | 'security'>('profile');
+
+  const handleClose = () => {
+    if (user) {
+      applyThemeVariablesLocal(user);
+    }
+    onClose();
+  };
   
   // Profile settings
   const [displayName, setDisplayName] = useState('');
@@ -503,7 +510,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </button>
           </div>
 
-          <button onClick={onClose} className="w-full py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xxs font-bold text-muted-text hover:text-white transition-all text-center">
+          <button onClick={handleClose} className="w-full py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xxs font-bold text-muted-text hover:text-white transition-all text-center">
             Close Panel
           </button>
         </div>
@@ -515,7 +522,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <h3 className="text-sm font-bold uppercase tracking-wider font-display text-white">
               {activeSubTab === 'profile' ? 'Profile Details' : activeSubTab === 'appearance' ? 'Appearance & Interface Customization' : 'Account Security & Live Sessions'}
             </h3>
-            <button onClick={onClose} className="p-1 hover:bg-white/5 rounded-full text-muted-text hover:text-white transition-colors">
+            <button onClick={handleClose} className="p-1 hover:bg-white/5 rounded-full text-muted-text hover:text-white transition-colors">
               <X size={16} />
             </button>
           </div>

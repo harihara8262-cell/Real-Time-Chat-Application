@@ -17,7 +17,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
   // Security Lock countdown timer
   const [lockTimeLeft, setLockTimeLeft] = useState<number>(0);
   const [warningMessage, setWarningMessage] = useState<string>('');
-  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownIntervalRef = useRef<any>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useChatStore } from '../../stores/useChatStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { socket } from '../../socket';
-import { Hash, MessageSquare, CornerUpRight, Trash2, Edit3, Pin, Smile, FileText, Download, CheckCheck } from 'lucide-react';
+import { MessageSquare, CornerUpRight, Trash2, Edit3, Pin, Smile, FileText, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Message } from '../../types/types';
 
@@ -19,9 +19,7 @@ export const ChatFeed: React.FC<ChatFeedProps> = ({ searchFilter, isPinsOnly }) 
     pinnedMessages,
     typingUsers,
     fetchMessages,
-    setReplyingToMessage,
-    removeMessage,
-    updatePinnedMessage
+    setReplyingToMessage
   } = useChatStore();
 
   const feedRef = useRef<HTMLDivElement>(null);

@@ -1,12 +1,11 @@
 import React from 'react';
 import { useChatStore } from '../../stores/useChatStore';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { Shield, Users, FileText, Calendar, Hash } from 'lucide-react';
-import { Channel } from '../../types/types';
+import { Shield, Users, FileText, Calendar, X } from 'lucide-react';
 
 export const SidebarRight: React.FC = () => {
   const { user } = useAuthStore();
-  const { activeChannelId, channels, activeChannelMessages, isDetailsOpen } = useChatStore();
+  const { activeChannelId, channels, activeChannelMessages, isDetailsOpen, toggleDetails } = useChatStore();
 
   const currentChannel = channels.find(c => c._id === activeChannelId);
 
@@ -54,6 +53,18 @@ export const SidebarRight: React.FC = () => {
 
   return (
     <div className="w-[280px] h-full bg-dark-surface/60 border-l border-white/5 flex flex-col shrink-0 overflow-y-auto select-none p-4 space-y-6">
+      {/* Drawer Header */}
+      <div className="flex items-center justify-between pb-2 border-b border-white/5">
+        <h3 className="text-xs font-bold text-white uppercase tracking-wider font-display">Room Details</h3>
+        <button
+          onClick={toggleDetails}
+          className="p-1 hover:bg-white/5 rounded-full text-muted-text hover:text-white transition-colors"
+          title="Close Panel"
+        >
+          <X size={16} />
+        </button>
+      </div>
+
       {/* 1. Header Information */}
       <div className="space-y-2">
         <h3 className="text-xxs font-bold text-muted-text uppercase tracking-wider">About</h3>

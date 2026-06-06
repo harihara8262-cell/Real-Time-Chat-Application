@@ -25,8 +25,8 @@ interface ChatState {
   incrementUnread: (channelId: string) => void;
   clearUnread: (channelId: string) => void;
   setTyping: (channelId: string, userId: string, displayName: string, isTyping: boolean) => void;
-  setUsersList: (users: User[]) => void;
-  updateUserStatus: (userId: string, status: string, statusText?: string) => void;
+  setUsersList: (usersList: User[]) => void;
+  updateUserStatus: (userId: string, status: 'online' | 'idle' | 'dnd' | 'offline', statusText?: string) => void;
   setReplyingToMessage: (message: Message | null) => void;
   toggleDetails: () => void;
 
@@ -38,7 +38,7 @@ interface ChatState {
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-export const useChatStore = create<ChatState>((set, get) => ({
+export const useChatStore = create<ChatState>((set) => ({
   channels: [],
   activeChannelId: null,
   activeChannelMessages: [],
@@ -129,7 +129,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   })),
 
-  setTyping: (channelId, userId, displayName, isTyping) => set((state) => {
+  setTyping: (channelId, _userId, displayName, isTyping) => set((state) => {
     const list = state.typingUsers[channelId] || [];
     let newList;
     if (isTyping) {

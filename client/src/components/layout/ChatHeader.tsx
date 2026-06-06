@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChatStore } from '../../stores/useChatStore';
 import { useAuthStore } from '../../stores/useAuthStore';
-import { Hash, Phone, Video, Pin, Search, Info, Users } from 'lucide-react';
+import { Hash, Phone, Video, Pin, Search, Users } from 'lucide-react';
 
 interface ChatHeaderProps {
   onTogglePins: () => void;
@@ -22,7 +22,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const isDM = currentChannel.isDirectMessage;
   let title = currentChannel.name;
   let subtitle = 'Group Channel';
-  let memberCount = currentChannel.members.length;
 
   if (isDM) {
     const otherMember = currentChannel.members.find(m => m.user._id !== user?._id);
